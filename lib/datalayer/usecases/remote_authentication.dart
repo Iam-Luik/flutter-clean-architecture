@@ -1,4 +1,5 @@
 import 'package:my_app/datalayer/http/http.dart';
+import 'package:my_app/domain/entities/account_entity.dart';
 import 'package:my_app/domain/helpers/domain_error.dart';
 import 'package:my_app/domain/usecases/usecases.dart';
 
@@ -8,12 +9,13 @@ class RemoteAuthentication {
 
   RemoteAuthentication({required this.httpClient, required this.url});
 
-  Future<void> auth(AuthenticationParams params) async {
+  Future<AccountEntity> auth(AuthenticationParams params) async {
     try {
-      await httpClient.request(
+      final httpResponse = await httpClient.request(
           url: url,
           method: 'post',
           body: RemoteAuthenticationParams.fromDomain(params).toJson());
+      return AccountEntity.fromJson(httpResponse as Map<dynamic, dynamic>);
     } on HttpError catch (error) {
       throw error == HttpError.unauthorized
           ? DomainError.invalidCredentials
